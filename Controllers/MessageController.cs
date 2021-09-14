@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using TLmessanger.Models;
 
 namespace TLmessanger.Controllers
 {
@@ -23,14 +24,8 @@ namespace TLmessanger.Controllers
             telegramBotClient = new TelegramBotClient(_token);
         }
 
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-
-       
-
+        private static readonly string[] Summaries = new[] {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+            
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
@@ -45,11 +40,22 @@ namespace TLmessanger.Controllers
         }
 
         [HttpPost("sendMessage")]
-        public async Task SendMessage()
+        public async Task SendMessage([FromBody] Message message)
         {
+            
+            // Получение сообщений от бота
+            telegramBotClient.OnMessage += TelegramBotClient_OnMessage;
+            // Запуск бота для приема сообщений
             telegramBotClient.StartReceiving();
+            // test your api configured correctly
+            //var me = await telegramBotClient.GetMeAsync();
+            //Console.WriteLine($"{me.Username} started");
 
+        }
 
+        // Сюда должны приходить сообщения
+        private void TelegramBotClient_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
+        {
 
         }
     }
