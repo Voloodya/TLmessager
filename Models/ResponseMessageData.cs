@@ -7,5 +7,8 @@ namespace TLmessanger.Models
 {
     public class ResponseMessageData
     {
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string TextMessage { get; set; }
     }
 }
