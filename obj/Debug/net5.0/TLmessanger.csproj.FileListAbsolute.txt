@@ -44,7 +44,6 @@ D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Swashbuckle.AspNetCore.Swagger.dll
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Telegram.Bot.dll
-D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.csprojAssemblyReference.cache
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.GeneratedMSBuildEditorConfig.editorconfig
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.AssemblyInfoInputs.cache
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.AssemblyInfo.cs
@@ -60,3 +59,4 @@ D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.dll
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\ref\TLmessanger.dll
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.pdb
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.genruntimeconfig.cache
+D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.csprojAssemblyReference.cache
