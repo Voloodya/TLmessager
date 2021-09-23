@@ -16,22 +16,23 @@ using TLmessanger.Services;
 namespace TLmessanger.Controllers
 {
     [ApiController]
-    [Route("api/TelegramListener")]
+    [Route("api/v1/TelegramListener")]
     public class TelegramListenerController : ControllerBase
     {
         private readonly ILogger<TelegramListenerController> _logger;
-        private readonly HttpClient httpClient;
+        private readonly IHttpClientFactory _clientFactory;
         private TelegramBotClient telegramBotClient;
         private string currentPath;
         private string _token { get; set; } = "1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk";
         private string url = "https://оренбургвсе.рф/api/TelegramBot/AcceptReplyMessageBot";
-        private string registerBotUrl = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/setwebhook?url=https://messager.оренбургвсе.рф/api/TelegramListener";
+        private string registerBotUrl = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/setwebhook?url=https://messager.оренбургвсе.рф/api/v1/TelegramListener";
         private string strCheackBot = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/getWebhookInfo";
-        public TelegramListenerController(ILogger<TelegramListenerController> logger)
+        public TelegramListenerController(ILogger<TelegramListenerController> logger, IHttpClientFactory clientFactory)
         {
             _logger = logger;
-            telegramBotClient = new TelegramBotClient(_token);
-            httpClient = new HttpClient();
+            // Фабрика для создания HttpClient, которая будет использоваться во всем приложении
+            _clientFactory = clientFactory;
+            telegramBotClient = new TelegramBotClient(_token, _clientFactory.CreateClient());
             currentPath = Environment.CurrentDirectory;
         }
 
@@ -70,10 +71,10 @@ namespace TLmessanger.Controllers
             //var me = await telegramBotClient.GetMeAsync();
             //Console.WriteLine($"{me.Username} started");
             List<string> listlogs = new List<string>();
-            listlogs.Add(update.ToString());
-            ReadWriteFileTxt.WriteFile(listlogs, currentPath, "logs "+ DateTime.Now.ToString().Replace('.', '_').Replace(' ', '_').Replace(':', '_'), "txt");
+            listlogs.Add(String.Format("Update: Id {0}; Date: {1}; UserFirstName: {2}; Message {1};", update.Id.ToString(), update.Message.Date, update.Message.Contact.FirstName, update.Message.Text));
 
             var message = update.Message;
+            string responseMessage = "";
             if (message != null)
             {
                 //MessageData requestMessage = new MessageData { TextMessage = message.Text, PhoneNumber = message.Contact.PhoneNumber, UserName = message.Contact.FirstName };
@@ -82,12 +83,14 @@ namespace TLmessanger.Controllers
                 //string jsonRequest = JsonSerializer.Serialize(requestMessage);
                 //string jsonResponseData = await PostRequestHttpAsync(url, jsonRequest);
                 //ResponseMessageData responseData = JsonSerializer.Deserialize<ResponseMessageData>(jsonResponseData);
-
+                responseMessage = message.Text;
                 // Ответ в чат-бот 
                 //await telegramBotClient.SendTextMessageAsync(message.Chat.Id, responseData.TextMessage, replyToMessageId: message.MessageId);
 
-                await telegramBotClient.SendTextMessageAsync(message.From.Id, message.Text, replyToMessageId: message.MessageId);
+                await telegramBotClient.SendTextMessageAsync(message.From.Id, responseMessage, replyToMessageId: message.MessageId);
             }
+            listlogs.Add(String.Format("Answer: {0};", responseMessage));
+            ReadWriteFileTxt.WriteFile(listlogs, currentPath, "logs_TelegramBot_" + DateTime.Now.Year+"_"+DateTime.Now.Month+"_"+ DateTime.Now.Day, "txt");
 
             return Ok();
         }
@@ -116,7 +119,7 @@ namespace TLmessanger.Controllers
         public async Task<string> PostRequestHttpAsync(string url, string json)
         {
             using HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await httpClient.PostAsync(url, content).ConfigureAwait(false);
+            using HttpResponseMessage response = await _clientFactory.CreateClient().PostAsync(url, content).ConfigureAwait(false);
 
             return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }

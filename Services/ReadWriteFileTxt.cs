@@ -44,17 +44,45 @@ namespace TLmessanger.Services
             {
                 newFolder.Create();
             }
-            // $"{dirInfo.FullName}\\{nameFile}.{typeFile}"
-            using (FileStream fileStream = new FileStream($"{newFolder.FullName}\\{nameFile}.{typeFile}", FileMode.CreateNew))
-            {
-                StreamWriter writer = new StreamWriter(fileStream, Encoding.GetEncoding("Windows-1251"));
 
-                foreach (string str in listWrite)
+            string fullPath = String.Format(@"{0}\{1}.{2}", newFolder.FullName, nameFile, typeFile);
+            // This text is added only once to the file.
+            try
+            {
+                if (!File.Exists(fullPath))
                 {
-                    writer.WriteLine(str);
+                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.GetEncoding("Windows-1251")))
+                    {
+
+                        foreach (string str in listWrite)
+                        {
+                            writer.WriteLine(str);
+                        }
+                    }
                 }
-                writer.Close();
+                else
+                {
+                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.GetEncoding("Windows-1251")))
+                    {
+                        foreach (string str in listWrite)
+                        {
+                            writer.WriteLine(str);
+                        }
+                    }
+                }
             }
+            catch { }
+                
+            // This text is always added, making the file longer over time
+            // if it is not deleted.
+            //using (StreamWriter sw = File.AppendText(fullPath))
+            //{
+            //    foreach (string str in listWrite)
+            //    {
+            //        sw.WriteLine(str);
+            //    }
+            //    sw.Close();
+            //}
         }
         public static List<string[]> SplitString(List<string> stringList, char parserChar)
         {

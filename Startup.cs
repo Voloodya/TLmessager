@@ -27,11 +27,21 @@ namespace TLmessanger
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            //services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TLmessanger", Version = "v1" });
             });
+
+            // Подключаем HttpClient для внедрения
+            services.AddHttpClient();
+
+            // The Telegram.Bot library heavily depends on Newtonsoft.Json library to deserialize
+            // incoming webhook updates and send serialized responses back.
+            // Read more about adding Newtonsoft.Json to ASP.NET Core pipeline:
+            //   https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0#add-newtonsoftjson-based-json-format-support
+            services.AddControllers()
+                    .AddNewtonsoftJson();
 
             //Add
             // There are several strategies for completing asynchronous tasks during startup.
@@ -51,12 +61,6 @@ namespace TLmessanger
             // Dummy business-logic service
             //services.AddScoped<HandleUpdateService>();
 
-            // The Telegram.Bot library heavily depends on Newtonsoft.Json library to deserialize
-            // incoming webhook updates and send serialized responses back.
-            // Read more about adding Newtonsoft.Json to ASP.NET Core pipeline:
-            //   https://docs.microsoft.com/en-us/aspnet/core/web-api/advanced/formatting?view=aspnetcore-5.0#add-newtonsoftjson-based-json-format-support
-            services.AddControllers()
-                    .AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,7 +79,7 @@ namespace TLmessanger
             //Add
             app.UseCors();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
