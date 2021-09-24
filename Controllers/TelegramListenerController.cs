@@ -71,7 +71,7 @@ namespace TLmessanger.Controllers
             //var me = await telegramBotClient.GetMeAsync();
             //Console.WriteLine($"{me.Username} started");
             List<string> listlogs = new List<string>();
-            listlogs.Add(String.Format("Update: Id {0}; Date: {1}; UserFirstName: {2}; Message {1};", update.Id.ToString(), update.Message.Date, update.Message.Contact.FirstName, update.Message.Text));
+            listlogs.Add(String.Format("Update: Id {0}; Date: {1}; UserFirstName: {2}; Message {1};", update.Id.ToString(), update.Message.Date, "", update.Message.Text));
 
             var message = update.Message;
             string responseMessage = "";
@@ -92,7 +92,7 @@ namespace TLmessanger.Controllers
             listlogs.Add(String.Format("Answer: {0};", responseMessage));
             ReadWriteFileTxt.WriteFile(listlogs, currentPath, "logs_TelegramBot_" + DateTime.Now.Year+"_"+DateTime.Now.Month+"_"+ DateTime.Now.Day, "txt");
 
-            return Ok();
+            return Ok("Запрос прошел");
         }
 
         // Сюда должны приходить сообщения с чат-бота

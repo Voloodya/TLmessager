@@ -79,7 +79,7 @@ namespace TLmessanger
             //Add
             app.UseCors();
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

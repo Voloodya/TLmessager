@@ -29,7 +29,6 @@ D:\My_PROGRAMS\TLmessanger\TLmessanger\obj\Debug\net5.0\TLmessanger.dll
 D:\My_PROGRAMS\TLmessanger\TLmessanger\obj\Debug\net5.0\ref\TLmessanger.dll
 D:\My_PROGRAMS\TLmessanger\TLmessanger\obj\Debug\net5.0\TLmessanger.pdb
 D:\My_PROGRAMS\TLmessanger\TLmessanger\obj\Debug\net5.0\TLmessanger.genruntimeconfig.cache
-D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\appsettings.Development.json
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\appsettings.json
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\TLmessanger.exe
 D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\TLmessanger.deps.json
@@ -60,3 +59,8 @@ D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\ref\TLmessanger.dll
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.pdb
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.genruntimeconfig.cache
 D:\My_PROGRAMS\TLmessanger\obj\Debug\net5.0\TLmessanger.csprojAssemblyReference.cache
+D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\appsettings.Dewelopment.Development.json
+D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\appsettings.Dewelopment.json
+D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\My_PROGRAMS\TLmessanger\bin\Debug\net5.0\Newtonsoft.Json.Bson.dll
