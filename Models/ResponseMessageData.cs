@@ -14,5 +14,9 @@ namespace TLmessanger.Models
         public string PhoneNumber { get; set; }
         [JsonProperty("textMessage")]
         public string TextMessage { get; set; }
+        [JsonProperty("status")]
+        public string Status { get; set; }
+        [JsonProperty("byteQrcode")]
+        public byte[] ByteQrcode { get; set; }
     }
 }
