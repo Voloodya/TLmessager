@@ -44,9 +44,17 @@
               "target": "Package",
               "version": "[5.0.10, )"
             },
+            "QRCoder": {
+              "target": "Package",
+              "version": "[1.4.1, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[5.6.3, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[5.0.2, )"
             },
             "System.Text.Encoding.CodePages": {
               "target": "Package",

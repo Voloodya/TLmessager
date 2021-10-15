@@ -19,7 +19,7 @@ namespace TLmessanger.Services
 
             List<String> fileContentList = new List<string>();
 
-            StreamReader fileStream = new StreamReader(filePath, Encoding.GetEncoding("Windows-1251"));//Encoding.GetEncoding("Windows-1251")
+            StreamReader fileStream = new StreamReader(filePath, Encoding.UTF8);//Encoding.GetEncoding("Windows-1251")
 
             while (!fileStream.EndOfStream)
             {
@@ -35,11 +35,11 @@ namespace TLmessanger.Services
             return fileContentList;
         }
 
-        public static void WriteFile(List<string> listWrite, string path, string nameFile, string typeFile)
+        public static void WriteFile(List<string> listWrite, string path, string nameFile, string typeFile, string newpath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             DirectoryInfo dirInfo = new DirectoryInfo(path);
-            DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory("Logs");
+            DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory(newpath);
             if (!newFolder.Exists)
             {
                 newFolder.Create();
@@ -51,7 +51,7 @@ namespace TLmessanger.Services
             {
                 if (!File.Exists(fullPath))
                 {
-                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.GetEncoding("Windows-1251")))
+                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.UTF8))
                     {
 
                         foreach (string str in listWrite)
@@ -62,7 +62,7 @@ namespace TLmessanger.Services
                 }
                 else
                 {
-                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.GetEncoding("Windows-1251")))
+                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.UTF8))
                     {
                         foreach (string str in listWrite)
                         {
@@ -84,6 +84,39 @@ namespace TLmessanger.Services
             //    sw.Close();
             //}
         }
+
+        public static void WriteFile(string str, string path, string nameFile, string typeFile, string newpath)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            DirectoryInfo dirInfo = new DirectoryInfo(path);
+            DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory(newpath);
+            if (!newFolder.Exists)
+            {
+                newFolder.Create();
+            }
+
+            string fullPath = String.Format(@"{0}\{1}.{2}", newFolder.FullName, nameFile, typeFile);
+            // This text is added only once to the file.
+            try
+            {
+                if (!File.Exists(fullPath))
+                {
+                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.UTF8))
+                    {
+                        writer.WriteLine(str);
+                    }
+                }
+                else
+                {
+                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.UTF8))
+                    {
+                       writer.WriteLine(str);
+                    }
+                }
+            }
+            catch { }
+        }
+
         public static List<string[]> SplitString(List<string> stringList, char parserChar)
         {
             List<string[]> splitStringList = new List<string[]>(stringList.Count);

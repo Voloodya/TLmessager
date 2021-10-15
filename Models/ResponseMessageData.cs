@@ -9,14 +9,14 @@ namespace TLmessanger.Models
     public class ResponseMessageData
     {
         [JsonProperty("userName")]
-        public string UserName { get; set; }
+        public string userName { get; set; }
         [JsonProperty("phoneNumber")]
-        public string PhoneNumber { get; set; }
+        public string phoneNumber { get; set; }
         [JsonProperty("textMessage")]
-        public string TextMessage { get; set; }
+        public string textMessage { get; set; }
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public string status { get; set; }
         [JsonProperty("byteQrcode")]
-        public byte[] ByteQrcode { get; set; }
+        public byte[] byteQrcode { get; set; }
     }
 }
