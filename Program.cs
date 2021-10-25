@@ -26,19 +26,19 @@ namespace TLmessanger
 
                     //Настройка кросс-платформенного web server'a Kestrel
                     // Запуск в папке проекта cmd dotnet run
-                    //webBuilder.UseKestrel(options =>
-                    //{
-                    //    options.Limits.MaxConcurrentConnections = 100;
-                    //    //// MaxRequestBodySize устанавливает максимальный размер для запроса в байтах
-                    //    //options.Limits.MaxRequestBodySize = 10 * 1024;
-                    //    //// MinRequestBodyDataRate задает минимальную скорость передачи данных в запросе в байтах в секунду
-                    //    //options.Limits.MinRequestBodyDataRate =
-                    //    //    new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-                    //    ////MinResponseDataRate задает минимальную скорость передачи данных в исходящем потоке в байтах в секунду
-                    //    //options.Limits.MinResponseDataRate =
-                    //    //    new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-                    //    options.Listen(IPAddress.Loopback, 5000);
-                    //});
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.Limits.MaxConcurrentConnections = 100;
+                        //// MaxRequestBodySize устанавливает максимальный размер для запроса в байтах
+                        //options.Limits.MaxRequestBodySize = 10 * 1024;
+                        //// MinRequestBodyDataRate задает минимальную скорость передачи данных в запросе в байтах в секунду
+                        //options.Limits.MinRequestBodyDataRate =
+                        //    new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                        ////MinResponseDataRate задает минимальную скорость передачи данных в исходящем потоке в байтах в секунду
+                        //options.Limits.MinResponseDataRate =
+                        //    new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                        options.Listen(IPAddress.Loopback, 5000);
+                    });
                 });
                 
     }

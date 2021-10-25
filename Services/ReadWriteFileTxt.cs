@@ -9,112 +9,149 @@ namespace TLmessanger.Services
 {
     public class ReadWriteFileTxt
     {
-        static char[] charsToTrim = { ' ', '\n', '\r', '\'', '\'' };
+        static char[] charsToTrim = { ' ', '\n', '\r', '\''};
+        private static readonly object _locker = new object();
+        private static readonly UTF8Encoding encoder = new UTF8Encoding(false);
 
-        public static List<string> ReadFile(string filePath)
+       public static List<string> ReadFile(string filePath)
         {
-            // если закомментировать, то будет исключение
-            // System.ArgumentException: ''windows-1251' is not a supported encoding name. For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method. Parameter name: name'
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            List<string> fileContentList = new List<string>();
 
-            List<String> fileContentList = new List<string>();
-
-            StreamReader fileStream = new StreamReader(filePath, Encoding.UTF8);//Encoding.GetEncoding("Windows-1251")
+            StreamReader fileStream = new StreamReader(filePath, encoder);//Encoding.GetEncoding("Windows-1251")
 
             while (!fileStream.EndOfStream)
             {
-                //Encoding utf = Encoding.UTF8;
-                //Encoding win = Encoding.GetEncoding(1251);
-
-                //byte[] winArr = win.GetBytes(fileStream.ReadLine());
-                //byte[] utfArr = Encoding.Convert(utf, win, winArr);
-                //string str = utf.GetString(utfArr);
-
-                fileContentList.Add(fileStream.ReadLine().Trim(charsToTrim));
+                string str = fileStream.ReadLine().Trim().Trim(charsToTrim);
+                if(str?.Length > 0) fileContentList.Add(str);                
             }
+            fileStream.Close();
             return fileContentList;
         }
 
-        public static void WriteFile(List<string> listWrite, string path, string nameFile, string typeFile, string newpath)
+        public static string WriteFile(List<string> listWrite, string path, string nameFile, string typeFile, string newpath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             DirectoryInfo dirInfo = new DirectoryInfo(path);
             DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory(newpath);
-            if (!newFolder.Exists)
-            {
-                newFolder.Create();
-            }
-
-            string fullPath = String.Format(@"{0}\{1}.{2}", newFolder.FullName, nameFile, typeFile);
-            // This text is added only once to the file.
             try
             {
-                if (!File.Exists(fullPath))
+                if (!newFolder.Exists)
                 {
-                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.UTF8))
-                    {
-
-                        foreach (string str in listWrite)
-                        {
-                            writer.WriteLine(str);
-                        }
-                    }
-                }
-                else
-                {
-                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.UTF8))
-                    {
-                        foreach (string str in listWrite)
-                        {
-                            writer.WriteLine(str);
-                        }
-                    }
+                    newFolder.Create();
                 }
             }
-            catch { }
-                
-            // This text is always added, making the file longer over time
-            // if it is not deleted.
-            //using (StreamWriter sw = File.AppendText(fullPath))
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+            string fullPath = Path.Combine(newFolder.FullName, $"{nameFile}.{typeFile}");
+            // This text is added only once to the file.
+            //try
             //{
-            //    foreach (string str in listWrite)
+            //    lock (_locker)
             //    {
-            //        sw.WriteLine(str);
+            //        if (!File.Exists(fullPath))
+            //        {
+            //            using (StreamWriter writer = new StreamWriter(fullPath, false, encoder))
+            //            {
+
+            //                foreach (string str in listWrite)
+            //                {
+            //                    writer.WriteLine(str);
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            using (StreamWriter writer = new StreamWriter(fullPath, true, encoder))
+            //            {
+            //                foreach (string str in listWrite)
+            //                {
+            //                    writer.WriteLine(str);
+            //                }
+            //            }
+            //        }
             //    }
-            //    sw.Close();
+            //    return fullPath;
             //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //    return fullPath;
+            //}
+            lock (_locker)
+            {
+                try
+                {
+                    File.AppendAllLines(fullPath,listWrite);
+                    return fullPath;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return null;
+                }
+            }
+
         }
 
-        public static void WriteFile(string str, string path, string nameFile, string typeFile, string newpath)
+        public static string WriteFile(string str, string path, string nameFile, string typeFile, string newpath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             DirectoryInfo dirInfo = new DirectoryInfo(path);
-            DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory(newpath);
-            if (!newFolder.Exists)
-            {
-                newFolder.Create();
-            }
+            DirectoryInfo newFolder = dirInfo.Parent.CreateSubdirectory(newpath);            
 
-            string fullPath = String.Format(@"{0}\{1}.{2}", newFolder.FullName, nameFile, typeFile);
+            string fullPath = Path.Combine(newFolder.FullName, $"{nameFile}.{typeFile}");
             // This text is added only once to the file.
+
             try
             {
-                if (!File.Exists(fullPath))
+                if (!newFolder.Exists)
                 {
-                    using (StreamWriter writer = new StreamWriter(fullPath, false, Encoding.UTF8))
-                    {
-                        writer.WriteLine(str);
-                    }
-                }
-                else
-                {
-                    using (StreamWriter writer = new StreamWriter(fullPath, true, Encoding.UTF8))
-                    {
-                       writer.WriteLine(str);
-                    }
+                    newFolder.Create();
                 }
             }
-            catch { }
+            catch (Exception ex) { Console.WriteLine(ex.Message);  Console.WriteLine(ex.Message); }
+
+            //try
+            //{
+            //    lock (_locker)
+            //    {
+
+            //        if (!File.Exists(fullPath))
+            //        {
+            //            using (StreamWriter writer = new StreamWriter(fullPath, false, encoder))
+            //            {
+            //                writer.WriteLine(str);
+            //            }
+            //        }
+            //        else
+            //        {
+
+            //            using (StreamWriter writer = new StreamWriter(fullPath, true, encoder))
+            //            {
+            //                writer.WriteLine(str);
+            //            }
+
+            //        }
+            //    }
+            //    return fullPath;
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //    return null;
+            //}
+            lock (_locker)
+            {
+                try
+                {
+                    File.AppendAllText(fullPath, str + Environment.NewLine);
+                    return fullPath;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return null;
+                }
+            }
         }
 
         public static List<string[]> SplitString(List<string> stringList, char parserChar)
@@ -129,5 +166,19 @@ namespace TLmessanger.Services
 
             return splitStringList;
         }
+
+        public static void DeleteFile(string pathFull)
+        {
+            try
+            {
+                File.Delete(pathFull);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
+
+    
 }

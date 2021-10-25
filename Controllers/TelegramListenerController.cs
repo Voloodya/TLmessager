@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -33,9 +34,11 @@ namespace TLmessanger.Controllers
         private string _currentPath;
         private MessageDataService _messageDataService;
         private string _token { get; set; } = "1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk";
-        private string url = "https://оренбургвсе.рф/api/TelegramBot/AcceptReplyMessageBot";
-        //private string url = "http://localhost:5001/api/TelegramBot/AcceptReplyMessageBot";
-        private string registerBotUrl = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/setwebhook?url=https://messager.оренбургвсе.рф/api/v1/TelegramListener";
+        private string urlRequestQRcode = "http://10.15.15.40/api/TelegramBot/AcceptReplyMessageBot";
+        //private string urlRequestRegistration = "http://10.15.15.40/api/TelegramBot/RegistrationFromTelegram";
+        private string urlRequestRegistration = "http://localhost:5001/api/TelegramBot/RegistrationFromTelegram";
+        //private string urlRequestQRcode = "http://localhost:5001/api/TelegramBot/AcceptReplyMessageBot";
+        private string registerBotUrl = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/setwebhook?url=https://cd24-195-226-209-21.ngrok.io/api/v1/TelegramListener";
         private string strCheackBot = "https://api.telegram.org/bot1956785959:AAHbzkyMAzp6b6houFkvZyAMoPVgK5hxmlk/getWebhookInfo";
         public TelegramListenerController(ILogger<TelegramListenerController> logger, IHttpClientFactory clientFactory, ICommandService commandService)
         {
@@ -101,6 +104,9 @@ namespace TLmessanger.Controllers
                 if (message.ReplyToMessage != null)
                 {
                     string messageNumberPhone;
+                    //Regex regexTelephone = new Regex(@"(^[+]{0,1}[0-9]{11})");
+                    Regex regexTelephone = new Regex(@"^\+?\d{11}$");
+
                     switch (message.ReplyToMessage.Text)
                     {
                         case "Укажите номер в федеральном формате (+7хххххххххх)":
@@ -120,7 +126,7 @@ namespace TLmessanger.Controllers
                                 listlogs.Add(String.Format("Запрос на сервер отправлен на номер {0}", requestMessage.PhoneNumber));
                                 ReadWriteFileTxt.WriteFile(listlogs, _currentPath, "logs_TelegramBot_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day, "txt", newpath: "logs");
                                 /////////////////////////////////////////////////////////////////
-                                string jsonResponseData = await PostRequestHttpAsync(url, jsonRequest);
+                                string jsonResponseData = await PostRequestHttpAsync(urlRequestQRcode, jsonRequest);
                                 ResponseMessageData responseData = JsonSerializer.Deserialize<ResponseMessageData>(jsonResponseData);
 
                                 //ResponseMessageData responseData = new ResponseMessageData();
@@ -170,10 +176,8 @@ namespace TLmessanger.Controllers
                                 listlogs.Add(String.Format("Запрос на сервер отправлен на номер {0};", requestMessage.PhoneNumber));
                                 ReadWriteFileTxt.WriteFile(listlogs, _currentPath, "logs_TelegramBot_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day, "txt", newpath: "logs");
                                 /////////////////////////////////////////////////////////////////
-                                string jsonResponseData = await PostRequestHttpAsync(url, jsonRequest);
+                                string jsonResponseData = await PostRequestHttpAsync(urlRequestQRcode, jsonRequest);
                                 ResponseMessageData responseData = JsonSerializer.Deserialize<ResponseMessageData>(jsonResponseData);
-                                //ResponseMessageData responseData = new ResponseMessageData();
-                                //responseData.textMessage = "No response";
 
                                 if (responseData.status!=null && !responseData.status.Equals("Not found") && responseData.textMessage != null)
                                 {
@@ -186,10 +190,9 @@ namespace TLmessanger.Controllers
                                     await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, "Ваш QR-код: " + responseMessageFromDB);
                                     if (byteCodes != null)
                                     {
-                                        string path = SaveByteInFileImage.SaveImage(byteCodes, _currentPath, message.From.Username, "jpg");
-                                        if ( path != null)
+                                        using (var ms = new MemoryStream(byteCodes))
                                         {
-                                            await _telegramBotClient.SendPhotoAsync(message.Chat.Id, photo: path);
+                                            await _telegramBotClient.SendPhotoAsync(message.Chat.Id, photo: new InputOnlineFile(ms, "QR_code.png"));
                                         }
                                     }
                                 }
@@ -213,8 +216,10 @@ namespace TLmessanger.Controllers
                                     fioList.Add(fio[0]);
                                     fioList.Add(fio[1]);
                                     if(fio.Length>2) fioList.Add(fio[2]);
+                                    else fioList.Add(" ");
                                     string nameUser = message.From.Username != null ? message.From.Username : message.From.Id.ToString();
-                                    ReadWriteFileTxt.WriteFile(fioList, _currentPath, nameUser, "txt", newpath: "RegisterUsers");
+                                    string fullPath = ReadWriteFileTxt.WriteFile(fioList, _currentPath, nameUser + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day, "txt", newpath: "RegisterUsers");
+
                                     await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, "Укажите номер телефона в федеральном формате (7хххххххххх) для регистрации", replyMarkup: new ForceReplyMarkup { Selective = true });
                                 }
                                 else
@@ -239,8 +244,10 @@ namespace TLmessanger.Controllers
                                     fioList.Add(fio[0]);
                                     fioList.Add(fio[1]);
                                     if (fio.Length > 2) fioList.Add(fio[2]);
+                                    else fioList.Add(" ");
                                     string nameUser = message.From.Username != null ? message.From.Username : message.From.Id.ToString();
-                                    ReadWriteFileTxt.WriteFile(fioList, _currentPath, nameUser, "txt", newpath: "RegisterUsers");
+                                    string fullPath = ReadWriteFileTxt.WriteFile(fioList, _currentPath, nameUser + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day, "txt", newpath: "RegisterUsers");
+
                                     await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, "Укажите номер телефона в федеральном формате (7хххххххххх) для регистрации", replyMarkup: new ForceReplyMarkup { Selective = true });
                                 }
                                 else
@@ -254,42 +261,90 @@ namespace TLmessanger.Controllers
                             }
 
                             break;
-                        case "Укажите номер телефона в федеральном формате (7хххххххххх) для регистрации":
-                            messageNumberPhone = ServicePhoneNumber.LeaveOnlyNumbers(message.Text);
+                        case "Укажите номер телефона в федеральном формате (7хххххххххх) для регистрации":                            
 
-                            if (messageNumberPhone.Length < 11 || messageNumberPhone.Length > 12)
+                            if (!regexTelephone.IsMatch(message.Text))
                             {
                                 await _telegramBotClient.SendTextMessageAsync(message.From.Id, "Номер телефона указан в неверном формате. Ждем Ваш номер для регистрации в федеральном формате (+7хххххххххх)", ParseMode.Default, replyMarkup: new ForceReplyMarkup { Selective = true });
                             }
                             else
                             {
+                                messageNumberPhone = ServicePhoneNumber.LeaveOnlyNumbers(message.Text);
                                 string nameUser = message.From.Username != null ? message.From.Username : message.From.Id.ToString();
-                                ReadWriteFileTxt.WriteFile(messageNumberPhone, _currentPath, nameUser, "txt", newpath: "RegisterUsers");
+                                string fullPath = ReadWriteFileTxt.WriteFile(messageNumberPhone, _currentPath, nameUser + "_" + $"{DateTime.Now:yyyy_MM_dd}", "txt", newpath: "RegisterUsers");
 
-                                string fullPath = String.Format(@"{0}\{1}.{2}", newFolder.FullName, nameFile, typeFile);
-                                List<string> strList = ReadWriteFileTxt.ReadFile();
+                                List<string> strRegisterList = ReadWriteFileTxt.ReadFile(fullPath);
+                                if (fullPath != null)
+                                {
+                                    ReadWriteFileTxt.DeleteFile(fullPath);
+                                }
+
+                                if (strRegisterList.Count < 4) return Ok("Были указаны не все данные. Попробуйте пройти регистрацию повторно.");
+
+                                MessageRegisterUser messageRegistrationUser = new MessageRegisterUser
+                                {
+                                    famileName = strRegisterList[0],
+                                    name = strRegisterList[1],
+                                    patronimicName = strRegisterList[2],
+                                    phoneNumber = strRegisterList[3],
+                                    userNameMessanger = nameUser,
+                                    fieldActivityName = "Мессенджеры",
+                                    organization = "Telegram",
+                                    group = "Telegram",
+                                    user = "telegram@ya.ru"
+                                };
+
+                                // Отправка запроса на API др. сервиса
+                                string jsonRequestRegistration = JsonSerializer.Serialize(messageRegistrationUser);
+                                string jsonResponseData = await PostRequestHttpAsync(urlRequestRegistration, jsonRequestRegistration);
+                                ResponseMessageData responseData = null;
+                                try
+                                {
+                                    responseData = JsonSerializer.Deserialize<ResponseMessageData>(jsonResponseData);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                }
                                 // Регистрация на основном сервисе
 
                                 // Отправка сообщения с основного сервиса пользователю:
                                 // Удаление файла 
                                 // отправка QR-кода
 
-                                //Отпрака сообщения о невозможности регистрации - дубликат ФИО или номера телефона
-                                await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, "Спасибо за регистрацию!");
+                                //Отпрака сообщения о статусе регичтрации
+                                await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, messageRegistrationUser.name +","+ responseData.status);
+
+                                if (responseData.byteQrcode != null)
+                                {
+                                    Byte[] byteCodes = null;
+                                    string responseMessageFromDB = responseData.textMessage;
+                                    byteCodes = QRcodeServices.BitmapToBytes(QRcodeServices.CreateBitmapFromBytes(responseData.byteQrcode));
+
+                                    await _telegramBotClient.SendTextMessageAsync(message.Chat.Id, "Ваш QR-код: " + responseMessageFromDB);
+                                    if (byteCodes != null)
+                                    {
+                                        using (var ms = new MemoryStream(byteCodes))
+                                        {
+                                            await _telegramBotClient.SendPhotoAsync(message.Chat.Id, photo: new InputOnlineFile(ms, "QR_code.png"));
+                                        }
+                                    }
+                                }
+
                             }
                             break;
 
                         case "Номер телефона указан в неверном формате. Ждем Ваш номер для регистрации в федеральном формате (+7хххххххххх)":
-                            messageNumberPhone = ServicePhoneNumber.LeaveOnlyNumbers(message.Text);
 
-                            if (messageNumberPhone.Length < 11 || messageNumberPhone.Length > 12)
+                            if (regexTelephone.IsMatch(message.Text))
                             {
                                 await _telegramBotClient.SendTextMessageAsync(message.From.Id, "Номер телефона указан в неверном формате. Ждем Ваш номер для регистрации в федеральном формате (+7хххххххххх)", ParseMode.Default, replyMarkup: new ForceReplyMarkup { Selective = true });
                             }
                             else
                             {
+                                messageNumberPhone = ServicePhoneNumber.LeaveOnlyNumbers(message.Text);
                                 string nameUser = message.From.Username != null ? message.From.Username : message.From.Id.ToString();
-                                ReadWriteFileTxt.WriteFile(messageNumberPhone, _currentPath, nameUser, "txt", newpath: "RegisterUsers");
+                                string fullPath = ReadWriteFileTxt.WriteFile(messageNumberPhone, _currentPath, nameUser + "_" + DateTime.Now.Year + "_" + DateTime.Now.Month + "_" + DateTime.Now.Day, "txt", newpath: "RegisterUsers");
 
                                 // Регистрация на основном сервисе
 
@@ -335,7 +390,7 @@ namespace TLmessanger.Controllers
                 }
             }
             listlogs.Add(String.Format("Answer: {0};", responseMessage));
-            ReadWriteFileTxt.WriteFile(listlogs, _currentPath, "logs_TelegramBot_" + DateTime.Now.Year+"_"+DateTime.Now.Month+"_"+ DateTime.Now.Day, "txt", newpath: "logs");
+            ReadWriteFileTxt.WriteFile(listlogs, _currentPath, "logs_TelegramBot_" + $"{DateTime.Now:yyyy_MM_dd}", "txt", newpath: "logs");
 
             return Ok();
         }
